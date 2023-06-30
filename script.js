@@ -26,7 +26,9 @@ if (navigator.geolocation)
 
       const coords = [latitude, longitude]; //creating an array with coords, first latitude and then longitude
 
-      const map = L.map("map").setView(coords, 13); //first coords and second is zoom level
+      const map = L.map("map").setView(coords, 13); // spetial object created by lefleat , first coords and second is zoom level
+
+      // console.log(map);
 
       //the map is made of tiles and these tiles are coming from this map, this map can be changed, this is just default map
       L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -38,8 +40,28 @@ if (navigator.geolocation)
         .addTo(map)
         .bindPopup("A pretty CSS popup.<br> Easily customizable.")
         .openPopup();
+
+      map.on("click", function (mapEvent) {
+        console.log(mapEvent);
+        const { lat, lng } = mapEvent.latlng;
+        L.marker([lat, lng])
+          .addTo(map)
+          .bindPopup(
+            L.popup({
+              maxWithd: 250,
+              minWidth: 100,
+              autoClose: false,
+              closeOnClick: false,
+              className: "running-popup",
+            })
+          )
+          .setPopupContent("Workout")
+          .openPopup();
+      });
     },
     function () {
       alert("Could not get your position");
     }
   );
+
+//Displaying the map marker
