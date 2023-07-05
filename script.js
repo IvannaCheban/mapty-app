@@ -109,7 +109,16 @@ class App {
     form.classList.remove("hidden");
     inputDistance.focus(); //good for user experience
   }
-
+  _hideForm() {
+    inputDistance.value =
+      inputDuration.value =
+      inputCadence.value =
+      inputElevation.value =
+        "";
+    form.style.display = "none"; //removing the grid
+    form.classList.add("hidden"); //add class
+    setTimeout(() => (form.style.display = "grid"), 1000); //toggling back the grid, this is a trick to get rid of 'jumping' of the form
+  }
   _toggleElevationField() {
     inputElevation.closest(".form__row").classList.toggle("form__row--hidden");
     inputCadence.closest(".form__row").classList.toggle("form__row--hidden");
@@ -166,11 +175,7 @@ class App {
     this._renderWorkout(workout);
     //Clear input fields
 
-    inputDistance.value =
-      inputCadence.value =
-      inputDuration.value =
-      inputElevation.value =
-        "";
+    this._hideForm();
   }
   _renderWorkoutMarker(workout) {
     // const { lat, lng } = this.#mapEvent.latlng; //destructuring the mapEvent object to get values from the events location
