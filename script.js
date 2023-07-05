@@ -219,7 +219,7 @@ class App {
       <span class="workout__unit">spm</span>
     </div>
   </li>`;
-    if ((workout = "cycling"))
+    if (workout === "cycling")
       html += `
 <div class="workout__details">
   <span class="workout__icon">⚡️</span>
@@ -233,6 +233,7 @@ class App {
 </div>
 </li>
   `;
+    form.insertAdjacentHTML("afterend", html); //this will add a new element as a sibling element at the end of the form
   }
 }
 const app = new App();
