@@ -192,7 +192,9 @@ class App {
           className: `${workout.type}-popup`, //specifying class to format style of each pop-up
         })
       )
-      .setPopupContent("Workout") // Sets the content of the popup bound to this layer.
+      .setPopupContent(
+        `${workout.type === "running" ? "🏃" : "🚴"}${workout.description}`
+      ) // Sets the content of the popup bound to this layer.
       .openPopup(); // and open the popup
   }
   _renderWorkout(workout) {
