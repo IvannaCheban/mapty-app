@@ -71,7 +71,13 @@ class App {
   #mapEvent;
   #workouts = [];
   constructor() {
+    //Get user`s postion
     this._getPosition(); //calling the methods in the constructure because these elements are loaded as soon as the page loads
+
+    //Get data from local storage
+    this._getLocalStorage();
+
+    //Attach the event handlers
     form.addEventListener("submit", this._newWorkout.bind(this)); //here we also have to point to the this keyword in the _new Workout function because on default it poits to the form object
     inputType.addEventListener("change", this._toggleElevationField); // here we dont need to bind the this to the function because it does not use the external data
     containerWorkouts.addEventListener("click", this._moveToPopup.bind(this)); //attaching Event listener to have it up and ready for event as the page loads
@@ -98,8 +104,6 @@ class App {
     const coords = [latitude, longitude]; //creating an array with coords, first latitude and then longitude
     this.#map = L.map("map").setView(coords, this.#mapZoomLevel); // spetial object created by lefleat , first coords and second is zoom level
 
-    // console.log(map);
-
     //the map is made of tiles and these tiles are coming from this map, this map can be changed, this is just default map
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution:
@@ -108,6 +112,8 @@ class App {
 
     //handling clicks on map
     this.#map.on("click", this._showForm.bind(this));
+
+    this.#workouts.forEach((work) => this._renderWorkoutMarker(work)); //calling method here because marker can only be loaded as the map loaded
   }
 
   _showForm(mapE) {
@@ -254,22 +260,34 @@ class App {
   }
   _moveToPopup(e) {
     const workoutEl = e.target.closest(".workout"); //getting the the closest element with a class workout selected when it was created
-    console.log(workoutEl);
+
     if (!workoutEl) return; //gurad clause
     const workout = this.#workouts.find(
       (work) => work.id === workoutEl.dataset.id
     );
-    console.log(workout);
+
     this.#map.setView(workout.coords, this.#mapZoomLevel, {
       animate: true,
       pan: { duration: 1 },
     });
     //using puplick inteface
-    workout.click();
+    // workout.click();//this was needed to show that as we load the methods from the localStorage, we lose prototype chaing and methods can no longer look up after they were processed by JSON, we could go around this
   }
   _setLocalStorage() {
     //setItem method that takes 2 strings
-    localStorage.setItem("workouts", JSON.stringify(this.#workouts)); //with this we set all the workouts to local storage
+    localStorage.setItem("workouts", JSON.stringify(this.#workouts)); //with this we set all the workouts to local storage, then as the page reloads we need to get it out
+  }
+  _getLocalStorage() {
+    const data = JSON.parse(localStorage.getItem("workouts")); //oposite of JSON.stringify
+
+    if (!data) return; //if no workouts than ommit
+
+    this.#workouts = data; //if there is data, set workouts to this data, restoring the data across multiple reloads of the page
+    this.#workouts.forEach((work) => this._renderWorkout(work));
+  }
+  reset() {
+    localStorage.removeItem("workouts");
+    location.reload();
   }
 }
 const app = new App();
