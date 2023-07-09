@@ -182,6 +182,9 @@ class App {
     //Clear input fields
 
     this._hideForm();
+    //Set local storage to all workouts
+
+    this._setLocalStorage();
   }
   _renderWorkoutMarker(workout) {
     // const { lat, lng } = this.#mapEvent.latlng; //destructuring the mapEvent object to get values from the events location
@@ -263,6 +266,10 @@ class App {
     });
     //using puplick inteface
     workout.click();
+  }
+  _setLocalStorage() {
+    //setItem method that takes 2 strings
+    localStorage.setItem("workouts", JSON.stringify(this.#workouts)); //with this we set all the workouts to local storage
   }
 }
 const app = new App();
