@@ -5,6 +5,7 @@ class Workout {
 
   date = new Date(); //class fields
   id = (Date.now() + "").slice(-10); // IRL we usually use some library to create good id numbers
+  clicks = 0;
   constructor(coords, distance, duration) {
     // this.date = ...
     // this.id = ...
@@ -18,6 +19,9 @@ class Workout {
     this.description = `${this.type[0].toUpperCase()}${this.type.slice(1)} on ${
       months[this.date.getMonth()]
     } ${this.date.getDate()} `;
+  }
+  click() {
+    this.clicks++;
   }
 }
 
@@ -63,12 +67,14 @@ const inputElevation = document.querySelector(".form__input--elevation");
 
 class App {
   #map;
+  #mapZoomLevel = 14;
   #mapEvent;
   #workouts = [];
   constructor() {
     this._getPosition(); //calling the methods in the constructure because these elements are loaded as soon as the page loads
     form.addEventListener("submit", this._newWorkout.bind(this)); //here we also have to point to the this keyword in the _new Workout function because on default it poits to the form object
     inputType.addEventListener("change", this._toggleElevationField); // here we dont need to bind the this to the function because it does not use the external data
+    containerWorkouts.addEventListener("click", this._moveToPopup.bind(this)); //attaching Event listener to have it up and ready for event as the page loads
   }
   _getPosition() {
     //Using geolocation API
@@ -90,7 +96,7 @@ class App {
     //L.map is a namespace just like Intl for internationalisation, and it has couple of methods that we can use, this namespace is a global variable on the script that we loaded before ours script.js, so this script.js has acces to the lefleat script but not the other way around because its defined before. So the order of the script placement has a great deal.
 
     const coords = [latitude, longitude]; //creating an array with coords, first latitude and then longitude
-    this.#map = L.map("map").setView(coords, 13); // spetial object created by lefleat , first coords and second is zoom level
+    this.#map = L.map("map").setView(coords, this.#mapZoomLevel); // spetial object created by lefleat , first coords and second is zoom level
 
     // console.log(map);
 
@@ -166,7 +172,7 @@ class App {
     }
     this.#workouts.push(workout);
     //Add new object to workout array
-    console.log(workout);
+
     //Render workout on map as marker
 
     this._renderWorkoutMarker(workout);
@@ -198,6 +204,7 @@ class App {
       .openPopup(); // and open the popup
   }
   _renderWorkout(workout) {
+    //data-id="${workout.id}"> - building a brige between the user interface and the workouts array to be able to select it when user clicks on the workout
     let html = `
      <li class="workout workout--${workout.type}" data-id="${workout.id}">
     <h2 class="workout__title">${workout.description}</h2>
@@ -241,6 +248,21 @@ class App {
 </li>
   `;
     form.insertAdjacentHTML("afterend", html); //this will add a new element as a sibling element at the end of the form
+  }
+  _moveToPopup(e) {
+    const workoutEl = e.target.closest(".workout"); //getting the the closest element with a class workout selected when it was created
+    console.log(workoutEl);
+    if (!workoutEl) return; //gurad clause
+    const workout = this.#workouts.find(
+      (work) => work.id === workoutEl.dataset.id
+    );
+    console.log(workout);
+    this.#map.setView(workout.coords, this.#mapZoomLevel, {
+      animate: true,
+      pan: { duration: 1 },
+    });
+    //using puplick inteface
+    workout.click();
   }
 }
 const app = new App();
